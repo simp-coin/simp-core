@@ -1,0 +1,2363 @@
+#
+#  Panoramix v4 Oct 2019 
+#  Decompiled source of 0x389999216860AB8E0175387A0c90E5c52522C945
+# 
+#  Let's make the world open source 
+# 
+#
+#  I failed with these: 
+#  - transferFrom(address _from, address _to, uint256 _value)
+#  - transfer(address _to, uint256 _value)
+#  All the rest is below.
+#
+
+const totalSupply = 100000000 * 10^18
+
+def storage:
+  owner is addr at storage 0
+  stor1 is mapping of uint256 at storage 1
+  stor2 is mapping of uint256 at storage 2
+  allowance is mapping of uint256 at storage 3
+  stor4 is mapping of uint8 at storage 4
+  stor5 is array of addr at storage 5
+  stor6 is uint256 at storage 6
+  totalFees is uint256 at storage 7
+  name is array of uint256 at storage 8
+  symbol is array of uint256 at storage 9
+  decimals is uint8 at storage 10
+  stor1546678032441257452667456735582814959992782782816731922691272282333561699760 is array of addr at storage 0x36b6384b5eca791c62761152d0c79bb0604c104a5fb6f4eb0703f3154bb3db0
+
+def name() payable: 
+  return name[0 len name.length]
+
+def totalFees() payable: 
+  return totalFees
+
+def decimals() payable: 
+  return decimals
+
+def owner() payable: 
+  return owner
+
+def symbol() payable: 
+  return symbol[0 len symbol.length]
+
+def unknowncba0e996(addr _param1) payable: 
+  require calldata.size - 4 >= 32
+  return bool(stor4[addr(_param1)])
+
+def allowance(address _owner, address _spender) payable: 
+  require calldata.size - 4 >= 64
+  return allowance[addr(_owner)][addr(_spender)]
+
+#
+#  Regular functions
+#
+
+def _fallback() payable: # default function
+  revert
+
+def renounceOwnership() payable: 
+  if owner != caller:
+      revert with 0, 'eOwnable: caller is not the owne'
+  log OwnershipTransferred(
+        address previousOwner=owner,
+        address newOwner=0)
+  owner = 0
+
+def transferOwnership(address _newOwner) payable: 
+  require calldata.size - 4 >= 32
+  if owner != caller:
+      revert with 0, 'eOwnable: caller is not the owne'
+  if not _newOwner:
+      revert with 0x8c379a000000000000000000000000000000000000000000000000000000000, 
+                  32,
+                  38,
+                  0x734f776e61626c653a206e6577206f776e657220697320746865207a65726f20616464726573,
+                  mem[202 len 26]
+  log OwnershipTransferred(
+        address previousOwner=owner,
+        address newOwner=_newOwner)
+  owner = _newOwner
+
+def approve(address _spender, uint256 _value) payable: 
+  require calldata.size - 4 >= 64
+  if not caller:
+      revert with 0x8c379a000000000000000000000000000000000000000000000000000000000, 
+                  32,
+                  36,
+                  0x7345524332303a20617070726f76652066726f6d20746865207a65726f20616464726573,
+                  mem[200 len 28]
+  if not _spender:
+      revert with 0x8c379a000000000000000000000000000000000000000000000000000000000, 
+                  32,
+                  34,
+                  0x7345524332303a20617070726f766520746f20746865207a65726f20616464726573,
+                  mem[198 len 30]
+  allowance[caller][addr(_spender)] = _value
+  log Approval(
+        address owner=_value,
+        address spender=caller,
+        uint256 value=_spender)
+  return 1
+
+def unknownf84354f1(addr _param1) payable: 
+  require calldata.size - 4 >= 32
+  if owner != caller:
+      revert with 0, 'eOwnable: caller is not the owne'
+  if not stor4[addr(_param1)]:
+      revert with 0, 'Account is already excluded'
+  idx = 0
+  while idx < stor5.length:
+      mem[0] = 5
+      if stor5[idx] != _param1:
+          idx = idx + 1
+          continue 
+      require stor5.length - 1 < stor5.length
+      require idx < stor5.length
+      stor5[idx] = stor5[stor5.length]
+      stor2[addr(_param1)] = 0
+      stor4[addr(_param1)] = 0
+      require stor5.length
+      stor5[stor5.length] = 0
+      stor5.length--
+      stop
+
+def decreaseAllowance(address _spender, uint256 _subtractedValue) payable: 
+  require calldata.size - 4 >= 64
+  if _subtractedValue > allowance[caller][addr(_spender)]:
+      revert with 0, 
+                  32,
+                  37,
+                  0x6e45524332303a2064656372656173656420616c6c6f77616e63652062656c6f77207a6572,
+                  mem[165 len 27],
+                  mem[219 len 5]
+  if not caller:
+      revert with 0, 32, 36, 0x7345524332303a20617070726f76652066726f6d20746865207a65726f20616464726573, mem[296 len 28]
+  if not _spender:
+      revert with 0, 32, 34, 0x7345524332303a20617070726f766520746f20746865207a65726f20616464726573, mem[294 len 30]
+  allowance[caller][addr(_spender)] -= _subtractedValue
+  log Approval(
+        address owner=(allowance[caller][addr(_spender)] - _subtractedValue),
+        address spender=caller,
+        uint256 value=_spender)
+  return 1
+
+def increaseAllowance(address _spender, uint256 _addedValue) payable: 
+  require calldata.size - 4 >= 64
+  if _addedValue + allowance[caller][addr(_spender)] < allowance[caller][addr(_spender)]:
+      revert with 0, 'SafeMath: addition overflow'
+  if not caller:
+      revert with 0x8c379a000000000000000000000000000000000000000000000000000000000, 
+                  32,
+                  36,
+                  0x7345524332303a20617070726f76652066726f6d20746865207a65726f20616464726573,
+                  mem[200 len 28]
+  if not _spender:
+      revert with 0x8c379a000000000000000000000000000000000000000000000000000000000, 
+                  32,
+                  34,
+                  0x7345524332303a20617070726f766520746f20746865207a65726f20616464726573,
+                  mem[198 len 30]
+  allowance[caller][addr(_spender)] += _addedValue
+  log Approval(
+        address owner=(_addedValue + allowance[caller][addr(_spender)]),
+        address spender=caller,
+        uint256 value=_spender)
+  return 1
+
+def unknown2d838119(uint256 _param1) payable: 
+  mem[64] = 96
+  require calldata.size - 4 >= 32
+  if _param1 > stor6:
+      revert with 0x8c379a000000000000000000000000000000000000000000000000000000000, 
+                  32,
+                  42,
+                  0x73416d6f756e74206d757374206265206c657373207468616e20746f74616c207265666c656374696f6e,
+                  mem[206 len 22]
+  idx = 0
+  s = 100000000 * 10^18
+  t = stor6
+  while idx < stor5.length:
+      mem[0] = stor5[idx]
+      mem[32] = 1
+      if stor1[stor5[idx]] > t:
+          _93 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_93] = 26
+          mem[_93 + 32] = 'SafeMath: division by zero'
+          _112 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_112] = 26
+          mem[_112 + 32] = 'SafeMath: division by zero'
+          if stor6 / 100000000 * 10^18:
+              return (_param1 / stor6 / 100000000 * 10^18)
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 26
+          mem[mem[64] + 68] = 'SafeMath: division by zero'
+          idx = 32
+          while idx < 26:
+              mem[idx + mem[64] + 68] = mem[idx + _112 + 32]
+              idx = idx + 32
+              continue 
+          revert with 0, 'SafeMath: division by zero'
+      require idx < stor5.length
+      mem[0] = stor5[idx]
+      mem[32] = 2
+      if stor2[stor5[idx]] > s:
+          _97 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_97] = 26
+          mem[_97 + 32] = 'SafeMath: division by zero'
+          _125 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_125] = 26
+          mem[_125 + 32] = 'SafeMath: division by zero'
+          if stor6 / 100000000 * 10^18:
+              return (_param1 / stor6 / 100000000 * 10^18)
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 26
+          mem[mem[64] + 68] = 'SafeMath: division by zero'
+          idx = 32
+          while idx < 26:
+              mem[idx + mem[64] + 68] = mem[idx + _125 + 32]
+              idx = idx + 32
+              continue 
+          revert with 0, 'SafeMath: division by zero'
+      require idx < stor5.length
+      mem[0] = stor5[idx]
+      mem[32] = 1
+      _96 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_96] = 30
+      mem[_96 + 32] = 'SafeMath: subtraction overflow'
+      if stor1[stor5[idx]] > t:
+          _98 = mem[64]
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 30
+          idx = 0
+          while idx < 30:
+              mem[idx + _98 + 68] = mem[idx + _96 + 32]
+              idx = idx + 32
+              continue 
+          mem[_98 + 68] = mem[_98 + 70 len 30]
+          revert with memory
+            from mem[64]
+             len _98 + -mem[64] + 100
+      require idx < stor5.length
+      mem[0] = stor5[idx]
+      mem[32] = 2
+      _113 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_113] = 30
+      mem[_113 + 32] = 'SafeMath: subtraction overflow'
+      if stor2[stor5[idx]] <= s:
+          idx = idx + 1
+          s = s - stor2[stor5[idx]]
+          t = t - stor1[stor5[idx]]
+          continue 
+      _122 = mem[64]
+      mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+      mem[mem[64] + 4] = 32
+      mem[mem[64] + 36] = 30
+      idx = 0
+      while idx < 30:
+          mem[idx + _122 + 68] = mem[idx + _113 + 32]
+          idx = idx + 32
+          continue 
+      mem[_122 + 68] = mem[_122 + 70 len 30]
+      revert with memory
+        from mem[64]
+         len _122 + -mem[64] + 100
+  if t < stor6 / 100000000 * 10^18:
+      if not stor6 / 100000000 * 10^18:
+          revert with 0, 'SafeMath: division by zero'
+      return (_param1 / stor6 / 100000000 * 10^18)
+  if not s:
+      revert with 0, 'SafeMath: division by zero'
+  if not t / s:
+      revert with 0, 'SafeMath: division by zero'
+  return (_param1 / t / s)
+
+def balanceOf(address _owner) payable: 
+  mem[64] = 96
+  require calldata.size - 4 >= 32
+  if stor4[addr(_owner)]:
+      return stor2[addr(_owner)]
+  mem[0] = _owner
+  mem[32] = 1
+  if stor1[addr(_owner)] > stor6:
+      revert with 0x8c379a000000000000000000000000000000000000000000000000000000000, 
+                  32,
+                  42,
+                  0x73416d6f756e74206d757374206265206c657373207468616e20746f74616c207265666c656374696f6e,
+                  mem[206 len 22]
+  idx = 0
+  s = 100000000 * 10^18
+  t = stor6
+  while idx < stor5.length:
+      mem[0] = stor5[idx]
+      mem[32] = 1
+      if stor1[stor5[idx]] > t:
+          _98 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_98] = 26
+          mem[_98 + 32] = 'SafeMath: division by zero'
+          _117 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_117] = 26
+          mem[_117 + 32] = 'SafeMath: division by zero'
+          if stor6 / 100000000 * 10^18:
+              return (stor1[addr(_owner)] / stor6 / 100000000 * 10^18)
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 26
+          mem[mem[64] + 68] = 'SafeMath: division by zero'
+          idx = 32
+          while idx < 26:
+              mem[idx + mem[64] + 68] = mem[idx + _117 + 32]
+              idx = idx + 32
+              continue 
+          revert with 0, 'SafeMath: division by zero'
+      require idx < stor5.length
+      mem[0] = stor5[idx]
+      mem[32] = 2
+      if stor2[stor5[idx]] > s:
+          _102 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_102] = 26
+          mem[_102 + 32] = 'SafeMath: division by zero'
+          _130 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_130] = 26
+          mem[_130 + 32] = 'SafeMath: division by zero'
+          if stor6 / 100000000 * 10^18:
+              return (stor1[addr(_owner)] / stor6 / 100000000 * 10^18)
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 26
+          mem[mem[64] + 68] = 'SafeMath: division by zero'
+          idx = 32
+          while idx < 26:
+              mem[idx + mem[64] + 68] = mem[idx + _130 + 32]
+              idx = idx + 32
+              continue 
+          revert with 0, 'SafeMath: division by zero'
+      require idx < stor5.length
+      mem[0] = stor5[idx]
+      mem[32] = 1
+      _101 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_101] = 30
+      mem[_101 + 32] = 'SafeMath: subtraction overflow'
+      if stor1[stor5[idx]] > t:
+          _103 = mem[64]
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 30
+          idx = 0
+          while idx < 30:
+              mem[idx + _103 + 68] = mem[idx + _101 + 32]
+              idx = idx + 32
+              continue 
+          mem[_103 + 68] = mem[_103 + 70 len 30]
+          revert with memory
+            from mem[64]
+             len _103 + -mem[64] + 100
+      require idx < stor5.length
+      mem[0] = stor5[idx]
+      mem[32] = 2
+      _118 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_118] = 30
+      mem[_118 + 32] = 'SafeMath: subtraction overflow'
+      if stor2[stor5[idx]] <= s:
+          idx = idx + 1
+          s = s - stor2[stor5[idx]]
+          t = t - stor1[stor5[idx]]
+          continue 
+      _127 = mem[64]
+      mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+      mem[mem[64] + 4] = 32
+      mem[mem[64] + 36] = 30
+      idx = 0
+      while idx < 30:
+          mem[idx + _127 + 68] = mem[idx + _118 + 32]
+          idx = idx + 32
+          continue 
+      mem[_127 + 68] = mem[_127 + 70 len 30]
+      revert with memory
+        from mem[64]
+         len _127 + -mem[64] + 100
+  if t < stor6 / 100000000 * 10^18:
+      if not stor6 / 100000000 * 10^18:
+          revert with 0, 'SafeMath: division by zero'
+      return (stor1[addr(_owner)] / stor6 / 100000000 * 10^18)
+  if not s:
+      revert with 0, 'SafeMath: division by zero'
+  if not t / s:
+      revert with 0, 'SafeMath: division by zero'
+  return (stor1[addr(_owner)] / t / s)
+
+def unknownf2cc0c18(addr _param1) payable: 
+  mem[64] = 96
+  require calldata.size - 4 >= 32
+  if owner != caller:
+      revert with 0, 'eOwnable: caller is not the owne'
+  if stor4[addr(_param1)]:
+      revert with 0, 'Account is already excluded'
+  if stor1[addr(_param1)]:
+      mem[0] = _param1
+      mem[32] = 1
+      if stor1[addr(_param1)] > stor6:
+          revert with 0x8c379a000000000000000000000000000000000000000000000000000000000, 
+                      32,
+                      42,
+                      0x73416d6f756e74206d757374206265206c657373207468616e20746f74616c207265666c656374696f6e,
+                      mem[206 len 22]
+      idx = 0
+      s = 100000000 * 10^18
+      t = stor6
+      while idx < stor5.length:
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          if stor1[stor5[idx]] > t:
+              _103 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_103] = 26
+              mem[_103 + 32] = 'SafeMath: division by zero'
+              _122 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_122] = 26
+              mem[_122 + 32] = 'SafeMath: division by zero'
+              if stor6 / 100000000 * 10^18:
+                  stor2[addr(_param1)] = stor1[addr(_param1)] / stor6 / 100000000 * 10^18
+                  stor4[addr(_param1)] = 1
+                  stor5.length++
+                  stor36B6[stor5.length] = _param1
+                  stop
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 26
+              mem[mem[64] + 68] = 'SafeMath: division by zero'
+              idx = 32
+              while idx < 26:
+                  mem[idx + mem[64] + 68] = mem[idx + _122 + 32]
+                  idx = idx + 32
+                  continue 
+              revert with 0, 'SafeMath: division by zero'
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          if stor2[stor5[idx]] > s:
+              _107 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_107] = 26
+              mem[_107 + 32] = 'SafeMath: division by zero'
+              _135 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_135] = 26
+              mem[_135 + 32] = 'SafeMath: division by zero'
+              if stor6 / 100000000 * 10^18:
+                  stor2[addr(_param1)] = stor1[addr(_param1)] / stor6 / 100000000 * 10^18
+                  stor4[addr(_param1)] = 1
+                  stor5.length++
+                  stor36B6[stor5.length] = _param1
+                  stop
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 26
+              mem[mem[64] + 68] = 'SafeMath: division by zero'
+              idx = 32
+              while idx < 26:
+                  mem[idx + mem[64] + 68] = mem[idx + _135 + 32]
+                  idx = idx + 32
+                  continue 
+              revert with 0, 'SafeMath: division by zero'
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          _106 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_106] = 30
+          mem[_106 + 32] = 'SafeMath: subtraction overflow'
+          if stor1[stor5[idx]] > t:
+              _108 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _108 + 68] = mem[idx + _106 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_108 + 68] = mem[_108 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _108 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          _123 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_123] = 30
+          mem[_123 + 32] = 'SafeMath: subtraction overflow'
+          if stor2[stor5[idx]] <= s:
+              idx = idx + 1
+              s = s - stor2[stor5[idx]]
+              t = t - stor1[stor5[idx]]
+              continue 
+          _132 = mem[64]
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 30
+          idx = 0
+          while idx < 30:
+              mem[idx + _132 + 68] = mem[idx + _123 + 32]
+              idx = idx + 32
+              continue 
+          mem[_132 + 68] = mem[_132 + 70 len 30]
+          revert with memory
+            from mem[64]
+             len _132 + -mem[64] + 100
+      if t < stor6 / 100000000 * 10^18:
+          if not stor6 / 100000000 * 10^18:
+              revert with 0, 'SafeMath: division by zero'
+          stor2[addr(_param1)] = stor1[addr(_param1)] / stor6 / 100000000 * 10^18
+      else:
+          if not s:
+              revert with 0, 'SafeMath: division by zero'
+          if not t / s:
+              revert with 0, 'SafeMath: division by zero'
+          stor2[addr(_param1)] = stor1[addr(_param1)] / t / s
+  stor4[addr(_param1)] = 1
+  stor5.length++
+  stor36B6[stor5.length] = _param1
+
+def unknown4549b039(uint256 _param1, bool _param2) payable: 
+  require calldata.size - 4 >= 64
+  if _param1 > 100000000 * 10^18:
+      revert with 0, 'Amount must be less than supply'
+  mem[96] = 26
+  mem[128] = 'SafeMath: division by zero'
+  if _param2:
+      if not _param1 / 100:
+          mem[64] = 224
+          mem[160] = 30
+          mem[192] = 'SafeMath: subtraction overflow'
+          if 0 > _param1:
+              revert with 0, 'SafeMath: subtraction overflow'
+          idx = 0
+          s = 100000000 * 10^18
+          t = stor6
+          while idx < stor5.length:
+              mem[0] = stor5[idx]
+              mem[32] = 1
+              if stor1[stor5[idx]] > t:
+                  _628 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_628] = 26
+                  mem[_628 + 32] = 'SafeMath: division by zero'
+                  if not _param1:
+                      return 0
+                  if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  _813 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_813] = 30
+                  mem[_813 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 <= stor6 / 100000000 * 10^18 * _param1:
+                      return (stor6 / 100000000 * 10^18 * _param1)
+                  _841 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _841 + 68] = mem[idx + _813 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_841 + 68] = mem[_841 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _841 + -mem[64] + 100
+              require idx < stor5.length
+              mem[0] = stor5[idx]
+              mem[32] = 2
+              if stor2[stor5[idx]] > s:
+                  _642 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_642] = 26
+                  mem[_642 + 32] = 'SafeMath: division by zero'
+                  if not _param1:
+                      return 0
+                  if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  _844 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_844] = 30
+                  mem[_844 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 <= stor6 / 100000000 * 10^18 * _param1:
+                      return (stor6 / 100000000 * 10^18 * _param1)
+                  _900 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _900 + 68] = mem[idx + _844 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_900 + 68] = mem[_900 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _900 + -mem[64] + 100
+              require idx < stor5.length
+              mem[0] = stor5[idx]
+              mem[32] = 1
+              _638 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_638] = 30
+              mem[_638 + 32] = 'SafeMath: subtraction overflow'
+              if stor1[stor5[idx]] > t:
+                  _648 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _648 + 68] = mem[idx + _638 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_648 + 68] = mem[_648 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _648 + -mem[64] + 100
+              require idx < stor5.length
+              mem[0] = stor5[idx]
+              mem[32] = 2
+              _701 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_701] = 30
+              mem[_701 + 32] = 'SafeMath: subtraction overflow'
+              if stor2[stor5[idx]] <= s:
+                  idx = idx + 1
+                  s = s - stor2[stor5[idx]]
+                  t = t - stor1[stor5[idx]]
+                  continue 
+              _724 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _724 + 68] = mem[idx + _701 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_724 + 68] = mem[_724 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _724 + -mem[64] + 100
+          _598 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_598] = 26
+          mem[_598 + 32] = 'SafeMath: division by zero'
+          if t < stor6 / 100000000 * 10^18:
+              _660 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_660] = 26
+              mem[_660 + 32] = 'SafeMath: division by zero'
+              if not _param1:
+                  return 0
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if 0 > stor6 / 100000000 * 10^18 * _param1:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              return (stor6 / 100000000 * 10^18 * _param1)
+          _659 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_659] = 26
+          mem[_659 + 32] = 'SafeMath: division by zero'
+          if not s:
+              revert with 0, 'SafeMath: division by zero'
+          if not _param1:
+              return 0
+          if t / s * _param1 / _param1 != t / s:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          if 0 > t / s * _param1:
+              revert with 0, 'SafeMath: subtraction overflow'
+          return (t / s * _param1)
+      if 2 * _param1 / 100 / _param1 / 100 != 2:
+          revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[261 len 31]
+      mem[64] = 224
+      mem[160] = 30
+      mem[192] = 'SafeMath: subtraction overflow'
+      if 2 * _param1 / 100 > _param1:
+          revert with 0, 'SafeMath: subtraction overflow'
+      idx = 0
+      s = 100000000 * 10^18
+      t = stor6
+      while idx < stor5.length:
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          if stor1[stor5[idx]] > t:
+              _625 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_625] = 26
+              mem[_625 + 32] = 'SafeMath: division by zero'
+              if not _param1:
+                  if not 2 * _param1 / 100:
+                      return 0
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  _810 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_810] = 30
+                  mem[_810 + 32] = 'SafeMath: subtraction overflow'
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 <= 0:
+                      return (-1 * stor6 / 100000000 * 10^18 * 2 * _param1 / 100)
+                  _836 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _836 + 68] = mem[idx + _810 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_836 + 68] = mem[_836 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _836 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if not 2 * _param1 / 100:
+                  _809 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_809] = 30
+                  mem[_809 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 <= stor6 / 100000000 * 10^18 * _param1:
+                      return (stor6 / 100000000 * 10^18 * _param1)
+                  _833 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _833 + 68] = mem[idx + _809 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_833 + 68] = mem[_833 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _833 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              _819 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_819] = 30
+              mem[_819 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 <= stor6 / 100000000 * 10^18 * _param1:
+                  return ((stor6 / 100000000 * 10^18 * _param1) - (stor6 / 100000000 * 10^18 * 2 * _param1 / 100))
+              _867 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _867 + 68] = mem[idx + _819 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_867 + 68] = mem[_867 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _867 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          if stor2[stor5[idx]] > s:
+              _641 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_641] = 26
+              mem[_641 + 32] = 'SafeMath: division by zero'
+              if not _param1:
+                  if not 2 * _param1 / 100:
+                      return 0
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  _840 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_840] = 30
+                  mem[_840 + 32] = 'SafeMath: subtraction overflow'
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 <= 0:
+                      return (-1 * stor6 / 100000000 * 10^18 * 2 * _param1 / 100)
+                  _894 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _894 + 68] = mem[idx + _840 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_894 + 68] = mem[_894 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _894 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if not 2 * _param1 / 100:
+                  _839 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_839] = 30
+                  mem[_839 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 <= stor6 / 100000000 * 10^18 * _param1:
+                      return (stor6 / 100000000 * 10^18 * _param1)
+                  _891 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _891 + 68] = mem[idx + _839 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_891 + 68] = mem[_891 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _891 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              _870 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_870] = 30
+              mem[_870 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 <= stor6 / 100000000 * 10^18 * _param1:
+                  return ((stor6 / 100000000 * 10^18 * _param1) - (stor6 / 100000000 * 10^18 * 2 * _param1 / 100))
+              _928 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _928 + 68] = mem[idx + _870 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_928 + 68] = mem[_928 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _928 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          _637 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_637] = 30
+          mem[_637 + 32] = 'SafeMath: subtraction overflow'
+          if stor1[stor5[idx]] > t:
+              _645 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _645 + 68] = mem[idx + _637 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_645 + 68] = mem[_645 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _645 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          _698 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_698] = 30
+          mem[_698 + 32] = 'SafeMath: subtraction overflow'
+          if stor2[stor5[idx]] <= s:
+              idx = idx + 1
+              s = s - stor2[stor5[idx]]
+              t = t - stor1[stor5[idx]]
+              continue 
+          _719 = mem[64]
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 30
+          idx = 0
+          while idx < 30:
+              mem[idx + _719 + 68] = mem[idx + _698 + 32]
+              idx = idx + 32
+              continue 
+          mem[_719 + 68] = mem[_719 + 70 len 30]
+          revert with memory
+            from mem[64]
+             len _719 + -mem[64] + 100
+      _593 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_593] = 26
+      mem[_593 + 32] = 'SafeMath: division by zero'
+      if t < stor6 / 100000000 * 10^18:
+          _658 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_658] = 26
+          mem[_658 + 32] = 'SafeMath: division by zero'
+          if not _param1:
+              if not 2 * _param1 / 100:
+                  return 0
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > 0:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              return (-1 * stor6 / 100000000 * 10^18 * 2 * _param1 / 100)
+          if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          if not 2 * _param1 / 100:
+              if 0 > stor6 / 100000000 * 10^18 * _param1:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              return (stor6 / 100000000 * 10^18 * _param1)
+          if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > stor6 / 100000000 * 10^18 * _param1:
+              revert with 0, 'SafeMath: subtraction overflow'
+          return ((stor6 / 100000000 * 10^18 * _param1) - (stor6 / 100000000 * 10^18 * 2 * _param1 / 100))
+      _657 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_657] = 26
+      mem[_657 + 32] = 'SafeMath: division by zero'
+      if not s:
+          revert with 0, 'SafeMath: division by zero'
+      if not _param1:
+          if not 2 * _param1 / 100:
+              return 0
+          if t / s * 2 * _param1 / 100 / 2 * _param1 / 100 != t / s:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          if t / s * 2 * _param1 / 100 > 0:
+              revert with 0, 'SafeMath: subtraction overflow'
+          return (-1 * t / s * 2 * _param1 / 100)
+      if t / s * _param1 / _param1 != t / s:
+          revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+      if not 2 * _param1 / 100:
+          if 0 > t / s * _param1:
+              revert with 0, 'SafeMath: subtraction overflow'
+          return (t / s * _param1)
+      if t / s * 2 * _param1 / 100 / 2 * _param1 / 100 != t / s:
+          revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+      if t / s * 2 * _param1 / 100 > t / s * _param1:
+          revert with 0, 'SafeMath: subtraction overflow'
+      return ((t / s * _param1) - (t / s * 2 * _param1 / 100))
+  if not _param1 / 100:
+      mem[64] = 224
+      mem[160] = 30
+      mem[192] = 'SafeMath: subtraction overflow'
+      if 0 > _param1:
+          revert with 0, 'SafeMath: subtraction overflow'
+      idx = 0
+      s = 100000000 * 10^18
+      t = stor6
+      while idx < stor5.length:
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          if stor1[stor5[idx]] > t:
+              _634 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_634] = 26
+              mem[_634 + 32] = 'SafeMath: division by zero'
+              if not _param1:
+                  return 0
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              _818 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_818] = 30
+              mem[_818 + 32] = 'SafeMath: subtraction overflow'
+              if 0 <= stor6 / 100000000 * 10^18 * _param1:
+                  return (stor6 / 100000000 * 10^18 * _param1)
+              _857 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _857 + 68] = mem[idx + _818 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_857 + 68] = mem[_857 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _857 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          if stor2[stor5[idx]] > s:
+              _644 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_644] = 26
+              mem[_644 + 32] = 'SafeMath: division by zero'
+              if not _param1:
+                  return 0
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              _860 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_860] = 30
+              mem[_860 + 32] = 'SafeMath: subtraction overflow'
+              if 0 <= stor6 / 100000000 * 10^18 * _param1:
+                  return (stor6 / 100000000 * 10^18 * _param1)
+              _918 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _918 + 68] = mem[idx + _860 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_918 + 68] = mem[_918 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _918 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          _640 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_640] = 30
+          mem[_640 + 32] = 'SafeMath: subtraction overflow'
+          if stor1[stor5[idx]] > t:
+              _654 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _654 + 68] = mem[idx + _640 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_654 + 68] = mem[_654 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _654 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          _707 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_707] = 30
+          mem[_707 + 32] = 'SafeMath: subtraction overflow'
+          if stor2[stor5[idx]] <= s:
+              idx = idx + 1
+              s = s - stor2[stor5[idx]]
+              t = t - stor1[stor5[idx]]
+              continue 
+          _734 = mem[64]
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 30
+          idx = 0
+          while idx < 30:
+              mem[idx + _734 + 68] = mem[idx + _707 + 32]
+              idx = idx + 32
+              continue 
+          mem[_734 + 68] = mem[_734 + 70 len 30]
+          revert with memory
+            from mem[64]
+             len _734 + -mem[64] + 100
+      _608 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_608] = 26
+      mem[_608 + 32] = 'SafeMath: division by zero'
+      if t < stor6 / 100000000 * 10^18:
+          _664 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_664] = 26
+          mem[_664 + 32] = 'SafeMath: division by zero'
+          if not _param1:
+              return 0
+          if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          if 0 > stor6 / 100000000 * 10^18 * _param1:
+              revert with 0, 'SafeMath: subtraction overflow'
+          return (stor6 / 100000000 * 10^18 * _param1)
+      _663 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_663] = 26
+      mem[_663 + 32] = 'SafeMath: division by zero'
+      if not s:
+          revert with 0, 'SafeMath: division by zero'
+      if not _param1:
+          return 0
+      if t / s * _param1 / _param1 != t / s:
+          revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+      if 0 > t / s * _param1:
+          revert with 0, 'SafeMath: subtraction overflow'
+  else:
+      if 2 * _param1 / 100 / _param1 / 100 != 2:
+          revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[261 len 31]
+      mem[64] = 224
+      mem[160] = 30
+      mem[192] = 'SafeMath: subtraction overflow'
+      if 2 * _param1 / 100 > _param1:
+          revert with 0, 'SafeMath: subtraction overflow'
+      idx = 0
+      s = 100000000 * 10^18
+      t = stor6
+      while idx < stor5.length:
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          if stor1[stor5[idx]] > t:
+              _631 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_631] = 26
+              mem[_631 + 32] = 'SafeMath: division by zero'
+              if not _param1:
+                  if not 2 * _param1 / 100:
+                      return 0
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  _815 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_815] = 30
+                  mem[_815 + 32] = 'SafeMath: subtraction overflow'
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 <= 0:
+                      return 0
+                  _852 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _852 + 68] = mem[idx + _815 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_852 + 68] = mem[_852 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _852 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if not 2 * _param1 / 100:
+                  _814 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_814] = 30
+                  mem[_814 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 <= stor6 / 100000000 * 10^18 * _param1:
+                      return (stor6 / 100000000 * 10^18 * _param1)
+                  _849 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _849 + 68] = mem[idx + _814 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_849 + 68] = mem[_849 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _849 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              _824 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_824] = 30
+              mem[_824 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 <= stor6 / 100000000 * 10^18 * _param1:
+                  return (stor6 / 100000000 * 10^18 * _param1)
+              _879 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _879 + 68] = mem[idx + _824 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_879 + 68] = mem[_879 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _879 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          if stor2[stor5[idx]] > s:
+              _643 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_643] = 26
+              mem[_643 + 32] = 'SafeMath: division by zero'
+              if not _param1:
+                  if not 2 * _param1 / 100:
+                      return 0
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  _856 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_856] = 30
+                  mem[_856 + 32] = 'SafeMath: subtraction overflow'
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 <= 0:
+                      return 0
+                  _912 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _912 + 68] = mem[idx + _856 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_912 + 68] = mem[_912 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _912 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if not 2 * _param1 / 100:
+                  _855 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_855] = 30
+                  mem[_855 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 <= stor6 / 100000000 * 10^18 * _param1:
+                      return (stor6 / 100000000 * 10^18 * _param1)
+                  _909 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _909 + 68] = mem[idx + _855 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_909 + 68] = mem[_909 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _909 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              _882 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_882] = 30
+              mem[_882 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 <= stor6 / 100000000 * 10^18 * _param1:
+                  return (stor6 / 100000000 * 10^18 * _param1)
+              _940 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _940 + 68] = mem[idx + _882 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_940 + 68] = mem[_940 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _940 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          _639 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_639] = 30
+          mem[_639 + 32] = 'SafeMath: subtraction overflow'
+          if stor1[stor5[idx]] > t:
+              _651 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _651 + 68] = mem[idx + _639 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_651 + 68] = mem[_651 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _651 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          _704 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_704] = 30
+          mem[_704 + 32] = 'SafeMath: subtraction overflow'
+          if stor2[stor5[idx]] <= s:
+              idx = idx + 1
+              s = s - stor2[stor5[idx]]
+              t = t - stor1[stor5[idx]]
+              continue 
+          _729 = mem[64]
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 30
+          idx = 0
+          while idx < 30:
+              mem[idx + _729 + 68] = mem[idx + _704 + 32]
+              idx = idx + 32
+              continue 
+          mem[_729 + 68] = mem[_729 + 70 len 30]
+          revert with memory
+            from mem[64]
+             len _729 + -mem[64] + 100
+      _603 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_603] = 26
+      mem[_603 + 32] = 'SafeMath: division by zero'
+      if t < stor6 / 100000000 * 10^18:
+          _662 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_662] = 26
+          mem[_662 + 32] = 'SafeMath: division by zero'
+          if not _param1:
+              if 2 * _param1 / 100:
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > 0:
+                      revert with 0, 'SafeMath: subtraction overflow'
+                  else:
+                      return 0
+              else:
+                  return 0
+          if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          if not 2 * _param1 / 100:
+              if 0 > stor6 / 100000000 * 10^18 * _param1:
+                  revert with 0, 'SafeMath: subtraction overflow'
+          else:
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > stor6 / 100000000 * 10^18 * _param1:
+                  revert with 0, 'SafeMath: subtraction overflow'
+          return (stor6 / 100000000 * 10^18 * _param1)
+      _661 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_661] = 26
+      mem[_661 + 32] = 'SafeMath: division by zero'
+      if not s:
+          revert with 0, 'SafeMath: division by zero'
+      if not _param1:
+          if 2 * _param1 / 100:
+              if t / s * 2 * _param1 / 100 / 2 * _param1 / 100 != t / s:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if t / s * 2 * _param1 / 100 > 0:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              else:
+                  return 0
+          else:
+              return 0
+      if t / s * _param1 / _param1 != t / s:
+          revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+      if not 2 * _param1 / 100:
+          if 0 > t / s * _param1:
+              revert with 0, 'SafeMath: subtraction overflow'
+      else:
+          if t / s * 2 * _param1 / 100 / 2 * _param1 / 100 != t / s:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          if t / s * 2 * _param1 / 100 > t / s * _param1:
+              revert with 0, 'SafeMath: subtraction overflow'
+  return (t / s * _param1)
+
+def unknown053ab182(uint256 _param1) payable: 
+  require calldata.size - 4 >= 32
+  mem[0] = caller
+  mem[32] = 4
+  if stor4[caller]:
+      revert with 0x8c379a000000000000000000000000000000000000000000000000000000000, 
+                  32,
+                  44,
+                  0x734578636c75646564206164647265737365732063616e6e6f742063616c6c20746869732066756e6374696f,
+                  mem[208 len 20]
+  mem[96] = 26
+  mem[128] = 'SafeMath: division by zero'
+  if not _param1 / 100:
+      mem[64] = 224
+      mem[160] = 30
+      mem[192] = 'SafeMath: subtraction overflow'
+      if 0 > _param1:
+          revert with 0, 'SafeMath: subtraction overflow'
+      idx = 0
+      s = 100000000 * 10^18
+      t = stor6
+      while idx < stor5.length:
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          if stor1[stor5[idx]] > t:
+              _750 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_750] = 26
+              mem[_750 + 32] = 'SafeMath: division by zero'
+              if not _param1:
+                  _838 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_838] = 30
+                  mem[_838 + 32] = 'SafeMath: subtraction overflow'
+                  mem[0] = caller
+                  mem[32] = 1
+                  _938 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_938] = 30
+                  mem[_938 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 > stor1[caller]:
+                      _977 = mem[64]
+                      mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                      mem[mem[64] + 4] = 32
+                      mem[mem[64] + 36] = 30
+                      idx = 0
+                      while idx < 30:
+                          mem[idx + _977 + 68] = mem[idx + _938 + 32]
+                          idx = idx + 32
+                          continue 
+                      mem[_977 + 68] = mem[_977 + 70 len 30]
+                      revert with memory
+                        from mem[64]
+                         len _977 + -mem[64] + 100
+                  mem[0] = caller
+                  mem[32] = 1
+                  _1074 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_1074] = 30
+                  mem[_1074 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 <= stor6:
+                      if _param1 + totalFees < totalFees:
+                          revert with 0, 'SafeMath: addition overflow'
+                      totalFees += _param1
+                      stop
+                  _1148 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _1148 + 68] = mem[idx + _1074 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_1148 + 68] = mem[_1148 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _1148 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              _843 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_843] = 30
+              mem[_843 + 32] = 'SafeMath: subtraction overflow'
+              if 0 > stor6 / 100000000 * 10^18 * _param1:
+                  _861 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _861 + 68] = mem[idx + _843 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_861 + 68] = mem[_861 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _861 + -mem[64] + 100
+              mem[0] = caller
+              mem[32] = 1
+              _956 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_956] = 30
+              mem[_956 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * _param1 > stor1[caller]:
+                  _1011 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _1011 + 68] = mem[idx + _956 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_1011 + 68] = mem[_1011 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _1011 + -mem[64] + 100
+              mem[0] = caller
+              mem[32] = 1
+              stor1[caller] += -1 * stor6 / 100000000 * 10^18 * _param1
+              _1108 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_1108] = 30
+              mem[_1108 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * _param1 <= stor6:
+                  stor6 += -1 * stor6 / 100000000 * 10^18 * _param1
+                  if _param1 + totalFees < totalFees:
+                      revert with 0, 'SafeMath: addition overflow'
+                  totalFees += _param1
+                  stop
+              _1186 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _1186 + 68] = mem[idx + _1108 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_1186 + 68] = mem[_1186 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _1186 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          if stor2[stor5[idx]] <= s:
+              require idx < stor5.length
+              mem[0] = stor5[idx]
+              mem[32] = 1
+              _754 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_754] = 30
+              mem[_754 + 32] = 'SafeMath: subtraction overflow'
+              if stor1[stor5[idx]] > t:
+                  _760 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _760 + 68] = mem[idx + _754 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_760 + 68] = mem[_760 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _760 + -mem[64] + 100
+              require idx < stor5.length
+              mem[0] = stor5[idx]
+              mem[32] = 2
+              _787 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_787] = 30
+              mem[_787 + 32] = 'SafeMath: subtraction overflow'
+              if stor2[stor5[idx]] <= s:
+                  idx = idx + 1
+                  s = s - stor2[stor5[idx]]
+                  t = t - stor1[stor5[idx]]
+                  continue 
+              _800 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _800 + 68] = mem[idx + _787 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_800 + 68] = mem[_800 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _800 + -mem[64] + 100
+          _756 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_756] = 26
+          mem[_756 + 32] = 'SafeMath: division by zero'
+          if not _param1:
+              _848 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_848] = 30
+              mem[_848 + 32] = 'SafeMath: subtraction overflow'
+              mem[0] = caller
+              mem[32] = 1
+              _982 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_982] = 30
+              mem[_982 + 32] = 'SafeMath: subtraction overflow'
+              if 0 > stor1[caller]:
+                  _1046 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _1046 + 68] = mem[idx + _982 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_1046 + 68] = mem[_1046 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _1046 + -mem[64] + 100
+              mem[0] = caller
+              mem[32] = 1
+              _1153 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_1153] = 30
+              mem[_1153 + 32] = 'SafeMath: subtraction overflow'
+              if 0 <= stor6:
+                  if _param1 + totalFees < totalFees:
+                      revert with 0, 'SafeMath: addition overflow'
+                  totalFees += _param1
+                  stop
+              _1231 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _1231 + 68] = mem[idx + _1153 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_1231 + 68] = mem[_1231 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _1231 + -mem[64] + 100
+          if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          _864 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_864] = 30
+          mem[_864 + 32] = 'SafeMath: subtraction overflow'
+          if 0 > stor6 / 100000000 * 10^18 * _param1:
+              _892 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _892 + 68] = mem[idx + _864 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_892 + 68] = mem[_892 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _892 + -mem[64] + 100
+          mem[0] = caller
+          mem[32] = 1
+          _1014 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_1014] = 30
+          mem[_1014 + 32] = 'SafeMath: subtraction overflow'
+          if stor6 / 100000000 * 10^18 * _param1 > stor1[caller]:
+              _1077 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _1077 + 68] = mem[idx + _1014 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_1077 + 68] = mem[_1077 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _1077 + -mem[64] + 100
+          mem[0] = caller
+          mem[32] = 1
+          stor1[caller] += -1 * stor6 / 100000000 * 10^18 * _param1
+          _1189 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_1189] = 30
+          mem[_1189 + 32] = 'SafeMath: subtraction overflow'
+          if stor6 / 100000000 * 10^18 * _param1 <= stor6:
+              stor6 += -1 * stor6 / 100000000 * 10^18 * _param1
+              if _param1 + totalFees < totalFees:
+                  revert with 0, 'SafeMath: addition overflow'
+              totalFees += _param1
+              stop
+          _1274 = mem[64]
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 30
+          idx = 0
+          while idx < 30:
+              mem[idx + _1274 + 68] = mem[idx + _1189 + 32]
+              idx = idx + 32
+              continue 
+          mem[_1274 + 68] = mem[_1274 + 70 len 30]
+          revert with memory
+            from mem[64]
+             len _1274 + -mem[64] + 100
+      _736 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_736] = 26
+      mem[_736 + 32] = 'SafeMath: division by zero'
+      if t < stor6 / 100000000 * 10^18:
+          _766 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_766] = 26
+          mem[_766 + 32] = 'SafeMath: division by zero'
+          if not _param1:
+              if 0 > stor1[caller]:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              if 0 > stor6:
+                  revert with 0, 'SafeMath: subtraction overflow'
+          else:
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if 0 > stor6 / 100000000 * 10^18 * _param1:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * _param1 > stor1[caller]:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              stor1[caller] += -1 * stor6 / 100000000 * 10^18 * _param1
+              if stor6 / 100000000 * 10^18 * _param1 > stor6:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              stor6 += -1 * stor6 / 100000000 * 10^18 * _param1
+      else:
+          _765 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_765] = 26
+          mem[_765 + 32] = 'SafeMath: division by zero'
+          if not s:
+              revert with 0, 'SafeMath: division by zero'
+          if not _param1:
+              if 0 > stor1[caller]:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              if 0 > stor6:
+                  revert with 0, 'SafeMath: subtraction overflow'
+          else:
+              if t / s * _param1 / _param1 != t / s:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if 0 > t / s * _param1:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              if t / s * _param1 > stor1[caller]:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              stor1[caller] += -1 * t / s * _param1
+              if t / s * _param1 > stor6:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              stor6 += -1 * t / s * _param1
+  else:
+      if 2 * _param1 / 100 / _param1 / 100 != 2:
+          revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[261 len 31]
+      mem[64] = 224
+      mem[160] = 30
+      mem[192] = 'SafeMath: subtraction overflow'
+      if 2 * _param1 / 100 > _param1:
+          revert with 0, 'SafeMath: subtraction overflow'
+      idx = 0
+      s = 100000000 * 10^18
+      t = stor6
+      while idx < stor5.length:
+          mem[0] = stor5[idx]
+          mem[32] = 1
+          if stor1[stor5[idx]] > t:
+              _747 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_747] = 26
+              mem[_747 + 32] = 'SafeMath: division by zero'
+              if not _param1:
+                  if not 2 * _param1 / 100:
+                      _837 = mem[64]
+                      mem[64] = mem[64] + 64
+                      mem[_837] = 30
+                      mem[_837 + 32] = 'SafeMath: subtraction overflow'
+                      mem[0] = caller
+                      mem[32] = 1
+                      _927 = mem[64]
+                      mem[64] = mem[64] + 64
+                      mem[_927] = 30
+                      mem[_927 + 32] = 'SafeMath: subtraction overflow'
+                      if 0 > stor1[caller]:
+                          _965 = mem[64]
+                          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                          mem[mem[64] + 4] = 32
+                          mem[mem[64] + 36] = 30
+                          idx = 0
+                          while idx < 30:
+                              mem[idx + _965 + 68] = mem[idx + _927 + 32]
+                              idx = idx + 32
+                              continue 
+                          mem[_965 + 68] = mem[_965 + 70 len 30]
+                          revert with memory
+                            from mem[64]
+                             len _965 + -mem[64] + 100
+                      mem[0] = caller
+                      mem[32] = 1
+                      _1061 = mem[64]
+                      mem[64] = mem[64] + 64
+                      mem[_1061] = 30
+                      mem[_1061 + 32] = 'SafeMath: subtraction overflow'
+                      if 0 <= stor6:
+                          if _param1 + totalFees < totalFees:
+                              revert with 0, 'SafeMath: addition overflow'
+                          totalFees += _param1
+                          stop
+                      _1131 = mem[64]
+                      mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                      mem[mem[64] + 4] = 32
+                      mem[mem[64] + 36] = 30
+                      idx = 0
+                      while idx < 30:
+                          mem[idx + _1131 + 68] = mem[idx + _1061 + 32]
+                          idx = idx + 32
+                          continue 
+                      mem[_1131 + 68] = mem[_1131 + 70 len 30]
+                      revert with memory
+                        from mem[64]
+                         len _1131 + -mem[64] + 100
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  _840 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_840] = 30
+                  mem[_840 + 32] = 'SafeMath: subtraction overflow'
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > 0:
+                      _856 = mem[64]
+                      mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                      mem[mem[64] + 4] = 32
+                      mem[mem[64] + 36] = 30
+                      idx = 0
+                      while idx < 30:
+                          mem[idx + _856 + 68] = mem[idx + _840 + 32]
+                          idx = idx + 32
+                          continue 
+                      mem[_856 + 68] = mem[_856 + 70 len 30]
+                      revert with memory
+                        from mem[64]
+                         len _856 + -mem[64] + 100
+                  mem[0] = caller
+                  mem[32] = 1
+                  _949 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_949] = 30
+                  mem[_949 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 > stor1[caller]:
+                      _998 = mem[64]
+                      mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                      mem[mem[64] + 4] = 32
+                      mem[mem[64] + 36] = 30
+                      idx = 0
+                      while idx < 30:
+                          mem[idx + _998 + 68] = mem[idx + _949 + 32]
+                          idx = idx + 32
+                          continue 
+                      mem[_998 + 68] = mem[_998 + 70 len 30]
+                      revert with memory
+                        from mem[64]
+                         len _998 + -mem[64] + 100
+                  mem[0] = caller
+                  mem[32] = 1
+                  _1093 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_1093] = 30
+                  mem[_1093 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 <= stor6:
+                      if _param1 + totalFees < totalFees:
+                          revert with 0, 'SafeMath: addition overflow'
+                      totalFees += _param1
+                      stop
+                  _1170 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _1170 + 68] = mem[idx + _1093 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_1170 + 68] = mem[_1170 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _1170 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if not 2 * _param1 / 100:
+                  _839 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_839] = 30
+                  mem[_839 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 > stor6 / 100000000 * 10^18 * _param1:
+                      _853 = mem[64]
+                      mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                      mem[mem[64] + 4] = 32
+                      mem[mem[64] + 36] = 30
+                      idx = 0
+                      while idx < 30:
+                          mem[idx + _853 + 68] = mem[idx + _839 + 32]
+                          idx = idx + 32
+                          continue 
+                      mem[_853 + 68] = mem[_853 + 70 len 30]
+                      revert with memory
+                        from mem[64]
+                         len _853 + -mem[64] + 100
+                  mem[0] = caller
+                  mem[32] = 1
+                  _948 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_948] = 30
+                  mem[_948 + 32] = 'SafeMath: subtraction overflow'
+                  if stor6 / 100000000 * 10^18 * _param1 > stor1[caller]:
+                      _995 = mem[64]
+                      mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                      mem[mem[64] + 4] = 32
+                      mem[mem[64] + 36] = 30
+                      idx = 0
+                      while idx < 30:
+                          mem[idx + _995 + 68] = mem[idx + _948 + 32]
+                          idx = idx + 32
+                          continue 
+                      mem[_995 + 68] = mem[_995 + 70 len 30]
+                      revert with memory
+                        from mem[64]
+                         len _995 + -mem[64] + 100
+                  mem[0] = caller
+                  mem[32] = 1
+                  stor1[caller] += -1 * stor6 / 100000000 * 10^18 * _param1
+                  _1090 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_1090] = 30
+                  mem[_1090 + 32] = 'SafeMath: subtraction overflow'
+                  if stor6 / 100000000 * 10^18 * _param1 <= stor6:
+                      stor6 += -1 * stor6 / 100000000 * 10^18 * _param1
+                      if _param1 + totalFees < totalFees:
+                          revert with 0, 'SafeMath: addition overflow'
+                      totalFees += _param1
+                      stop
+                  _1167 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _1167 + 68] = mem[idx + _1090 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_1167 + 68] = mem[_1167 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _1167 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              _844 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_844] = 30
+              mem[_844 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > stor6 / 100000000 * 10^18 * _param1:
+                  _871 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _871 + 68] = mem[idx + _844 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_871 + 68] = mem[_871 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _871 + -mem[64] + 100
+              mem[0] = caller
+              mem[32] = 1
+              _964 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_964] = 30
+              mem[_964 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * _param1 > stor1[caller]:
+                  _1029 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _1029 + 68] = mem[idx + _964 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_1029 + 68] = mem[_1029 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _1029 + -mem[64] + 100
+              mem[0] = caller
+              mem[32] = 1
+              stor1[caller] += -1 * stor6 / 100000000 * 10^18 * _param1
+              _1126 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_1126] = 30
+              mem[_1126 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * _param1 <= stor6:
+                  stor6 += -1 * stor6 / 100000000 * 10^18 * _param1
+                  if _param1 + totalFees < totalFees:
+                      revert with 0, 'SafeMath: addition overflow'
+                  totalFees += _param1
+                  stop
+              _1207 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _1207 + 68] = mem[idx + _1126 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_1207 + 68] = mem[_1207 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _1207 + -mem[64] + 100
+          require idx < stor5.length
+          mem[0] = stor5[idx]
+          mem[32] = 2
+          if stor2[stor5[idx]] <= s:
+              require idx < stor5.length
+              mem[0] = stor5[idx]
+              mem[32] = 1
+              _753 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_753] = 30
+              mem[_753 + 32] = 'SafeMath: subtraction overflow'
+              if stor1[stor5[idx]] > t:
+                  _757 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _757 + 68] = mem[idx + _753 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_757 + 68] = mem[_757 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _757 + -mem[64] + 100
+              require idx < stor5.length
+              mem[0] = stor5[idx]
+              mem[32] = 2
+              _784 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_784] = 30
+              mem[_784 + 32] = 'SafeMath: subtraction overflow'
+              if stor2[stor5[idx]] <= s:
+                  idx = idx + 1
+                  s = s - stor2[stor5[idx]]
+                  t = t - stor1[stor5[idx]]
+                  continue 
+              _795 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _795 + 68] = mem[idx + _784 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_795 + 68] = mem[_795 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _795 + -mem[64] + 100
+          _755 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_755] = 26
+          mem[_755 + 32] = 'SafeMath: division by zero'
+          if not _param1:
+              if not 2 * _param1 / 100:
+                  _847 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_847] = 30
+                  mem[_847 + 32] = 'SafeMath: subtraction overflow'
+                  mem[0] = caller
+                  mem[32] = 1
+                  _974 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_974] = 30
+                  mem[_974 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 > stor1[caller]:
+                      _1035 = mem[64]
+                      mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                      mem[mem[64] + 4] = 32
+                      mem[mem[64] + 36] = 30
+                      idx = 0
+                      while idx < 30:
+                          mem[idx + _1035 + 68] = mem[idx + _974 + 32]
+                          idx = idx + 32
+                          continue 
+                      mem[_1035 + 68] = mem[_1035 + 70 len 30]
+                      revert with memory
+                        from mem[64]
+                         len _1035 + -mem[64] + 100
+                  mem[0] = caller
+                  mem[32] = 1
+                  _1138 = mem[64]
+                  mem[64] = mem[64] + 64
+                  mem[_1138] = 30
+                  mem[_1138 + 32] = 'SafeMath: subtraction overflow'
+                  if 0 <= stor6:
+                      if _param1 + totalFees < totalFees:
+                          revert with 0, 'SafeMath: addition overflow'
+                      totalFees += _param1
+                      stop
+                  _1216 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _1216 + 68] = mem[idx + _1138 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_1216 + 68] = mem[_1216 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _1216 + -mem[64] + 100
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              _860 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_860] = 30
+              mem[_860 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > 0:
+                  _886 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _886 + 68] = mem[idx + _860 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_886 + 68] = mem[_886 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _886 + -mem[64] + 100
+              mem[0] = caller
+              mem[32] = 1
+              _1004 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_1004] = 30
+              mem[_1004 + 32] = 'SafeMath: subtraction overflow'
+              if 0 > stor1[caller]:
+                  _1067 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _1067 + 68] = mem[idx + _1004 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_1067 + 68] = mem[_1067 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _1067 + -mem[64] + 100
+              mem[0] = caller
+              mem[32] = 1
+              _1178 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_1178] = 30
+              mem[_1178 + 32] = 'SafeMath: subtraction overflow'
+              if 0 <= stor6:
+                  if _param1 + totalFees < totalFees:
+                      revert with 0, 'SafeMath: addition overflow'
+                  totalFees += _param1
+                  stop
+              _1260 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _1260 + 68] = mem[idx + _1178 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_1260 + 68] = mem[_1260 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _1260 + -mem[64] + 100
+          if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          if not 2 * _param1 / 100:
+              _859 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_859] = 30
+              mem[_859 + 32] = 'SafeMath: subtraction overflow'
+              if 0 > stor6 / 100000000 * 10^18 * _param1:
+                  _883 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _883 + 68] = mem[idx + _859 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_883 + 68] = mem[_883 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _883 + -mem[64] + 100
+              mem[0] = caller
+              mem[32] = 1
+              _1003 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_1003] = 30
+              mem[_1003 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * _param1 > stor1[caller]:
+                  _1064 = mem[64]
+                  mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+                  mem[mem[64] + 4] = 32
+                  mem[mem[64] + 36] = 30
+                  idx = 0
+                  while idx < 30:
+                      mem[idx + _1064 + 68] = mem[idx + _1003 + 32]
+                      idx = idx + 32
+                      continue 
+                  mem[_1064 + 68] = mem[_1064 + 70 len 30]
+                  revert with memory
+                    from mem[64]
+                     len _1064 + -mem[64] + 100
+              mem[0] = caller
+              mem[32] = 1
+              stor1[caller] += -1 * stor6 / 100000000 * 10^18 * _param1
+              _1175 = mem[64]
+              mem[64] = mem[64] + 64
+              mem[_1175] = 30
+              mem[_1175 + 32] = 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * _param1 <= stor6:
+                  stor6 += -1 * stor6 / 100000000 * 10^18 * _param1
+                  if _param1 + totalFees < totalFees:
+                      revert with 0, 'SafeMath: addition overflow'
+                  totalFees += _param1
+                  stop
+              _1257 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _1257 + 68] = mem[idx + _1175 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_1257 + 68] = mem[_1257 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _1257 + -mem[64] + 100
+          if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+              revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+          _874 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_874] = 30
+          mem[_874 + 32] = 'SafeMath: subtraction overflow'
+          if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > stor6 / 100000000 * 10^18 * _param1:
+              _903 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _903 + 68] = mem[idx + _874 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_903 + 68] = mem[_903 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _903 + -mem[64] + 100
+          mem[0] = caller
+          mem[32] = 1
+          _1034 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_1034] = 30
+          mem[_1034 + 32] = 'SafeMath: subtraction overflow'
+          if stor6 / 100000000 * 10^18 * _param1 > stor1[caller]:
+              _1097 = mem[64]
+              mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+              mem[mem[64] + 4] = 32
+              mem[mem[64] + 36] = 30
+              idx = 0
+              while idx < 30:
+                  mem[idx + _1097 + 68] = mem[idx + _1034 + 32]
+                  idx = idx + 32
+                  continue 
+              mem[_1097 + 68] = mem[_1097 + 70 len 30]
+              revert with memory
+                from mem[64]
+                 len _1097 + -mem[64] + 100
+          mem[0] = caller
+          mem[32] = 1
+          stor1[caller] += -1 * stor6 / 100000000 * 10^18 * _param1
+          _1211 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_1211] = 30
+          mem[_1211 + 32] = 'SafeMath: subtraction overflow'
+          if stor6 / 100000000 * 10^18 * _param1 <= stor6:
+              stor6 += -1 * stor6 / 100000000 * 10^18 * _param1
+              if _param1 + totalFees < totalFees:
+                  revert with 0, 'SafeMath: addition overflow'
+              totalFees += _param1
+              stop
+          _1301 = mem[64]
+          mem[mem[64]] = 0x8c379a000000000000000000000000000000000000000000000000000000000
+          mem[mem[64] + 4] = 32
+          mem[mem[64] + 36] = 30
+          idx = 0
+          while idx < 30:
+              mem[idx + _1301 + 68] = mem[idx + _1211 + 32]
+              idx = idx + 32
+              continue 
+          mem[_1301 + 68] = mem[_1301 + 70 len 30]
+          revert with memory
+            from mem[64]
+             len _1301 + -mem[64] + 100
+      _731 = mem[64]
+      mem[64] = mem[64] + 64
+      mem[_731] = 26
+      mem[_731 + 32] = 'SafeMath: division by zero'
+      if t < stor6 / 100000000 * 10^18:
+          _764 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_764] = 26
+          mem[_764 + 32] = 'SafeMath: division by zero'
+          if not _param1:
+              if 2 * _param1 / 100:
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > 0:
+                      revert with 0, 'SafeMath: subtraction overflow'
+              if 0 > stor1[caller]:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              if 0 > stor6:
+                  revert with 0, 'SafeMath: subtraction overflow'
+          else:
+              if stor6 / 100000000 * 10^18 * _param1 / _param1 != stor6 / 100000000 * 10^18:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if not 2 * _param1 / 100:
+                  if 0 > stor6 / 100000000 * 10^18 * _param1:
+                      revert with 0, 'SafeMath: subtraction overflow'
+              else:
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 / 2 * _param1 / 100 != stor6 / 100000000 * 10^18:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  if stor6 / 100000000 * 10^18 * 2 * _param1 / 100 > stor6 / 100000000 * 10^18 * _param1:
+                      revert with 0, 'SafeMath: subtraction overflow'
+              if stor6 / 100000000 * 10^18 * _param1 > stor1[caller]:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              stor1[caller] += -1 * stor6 / 100000000 * 10^18 * _param1
+              if stor6 / 100000000 * 10^18 * _param1 > stor6:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              stor6 += -1 * stor6 / 100000000 * 10^18 * _param1
+      else:
+          _763 = mem[64]
+          mem[64] = mem[64] + 64
+          mem[_763] = 26
+          mem[_763 + 32] = 'SafeMath: division by zero'
+          if not s:
+              revert with 0, 'SafeMath: division by zero'
+          if not _param1:
+              if 2 * _param1 / 100:
+                  if t / s * 2 * _param1 / 100 / 2 * _param1 / 100 != t / s:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  if t / s * 2 * _param1 / 100 > 0:
+                      revert with 0, 'SafeMath: subtraction overflow'
+              if 0 > stor1[caller]:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              if 0 > stor6:
+                  revert with 0, 'SafeMath: subtraction overflow'
+          else:
+              if t / s * _param1 / _param1 != t / s:
+                  revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+              if not 2 * _param1 / 100:
+                  if 0 > t / s * _param1:
+                      revert with 0, 'SafeMath: subtraction overflow'
+              else:
+                  if t / s * 2 * _param1 / 100 / 2 * _param1 / 100 != t / s:
+                      revert with 0, 32, 33, 0x73536166654d6174683a206d756c7469706c69636174696f6e206f766572666c6f, mem[mem[64] + 101 len 31]
+                  if t / s * 2 * _param1 / 100 > t / s * _param1:
+                      revert with 0, 'SafeMath: subtraction overflow'
+              if t / s * _param1 > stor1[caller]:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              stor1[caller] += -1 * t / s * _param1
+              if t / s * _param1 > stor6:
+                  revert with 0, 'SafeMath: subtraction overflow'
+              stor6 += -1 * t / s * _param1
+  if _param1 + totalFees < totalFees:
+      revert with 0, 'SafeMath: addition overflow'
+  totalFees += _param1
+
