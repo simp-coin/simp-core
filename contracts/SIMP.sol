@@ -451,6 +451,8 @@ contract SIMP is Context, IERC20, Ownable {
     string private _symbol = 'SIMP';
     uint8 private _decimals = 9;
 
+    address payable public _marketingWalletAddress;
+
     constructor () public {
         _rOwned[_msgSender()] = _rTotal;
         emit Transfer(address(0), _msgSender(), _tTotal);
@@ -541,6 +543,11 @@ contract SIMP is Context, IERC20, Ownable {
         return rAmount.div(currentRate);
     }
 
+    function _setMarketingWallet(address payable marketingWalletAddress) external onlyOwner() {
+        _marketingWalletAddress = marketingWalletAddress;
+    }
+
+
     function excludeAccount(address account) external onlyOwner() {
         require(!_isExcluded[account], "Account is already excluded");
         if(_rOwned[account] > 0) {
@@ -575,16 +582,27 @@ contract SIMP is Context, IERC20, Ownable {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
+
+        // split additional fees out
+        uint256 marketingAmount = amount.mul(3).div(100);
+
+        //forward to marketing address - 3% 
+        _rOwned[sender] = _rOwned[sender].sub(marketingAmount);
+        _rOwned[_marketingWalletAddress] = _rOwned[_marketingWalletAddress].add(marketingAmount);
+        emit Transfer(address(this), _marketingWalletAddress, marketingAmount);
+
+        uint256 finalAmount = amount.sub((marketingAmount));
+
         if (_isExcluded[sender] && !_isExcluded[recipient]) {
-            _transferFromExcluded(sender, recipient, amount);
+            _transferFromExcluded(sender, recipient, finalAmount);
         } else if (!_isExcluded[sender] && _isExcluded[recipient]) {
-            _transferToExcluded(sender, recipient, amount);
+            _transferToExcluded(sender, recipient, finalAmount);
         } else if (!_isExcluded[sender] && !_isExcluded[recipient]) {
-            _transferStandard(sender, recipient, amount);
+            _transferStandard(sender, recipient, finalAmount);
         } else if (_isExcluded[sender] && _isExcluded[recipient]) {
-            _transferBothExcluded(sender, recipient, amount);
+            _transferBothExcluded(sender, recipient, finalAmount);
         } else {
-            _transferStandard(sender, recipient, amount);
+            _transferStandard(sender, recipient, finalAmount);
         }
     }
 
@@ -637,7 +655,8 @@ contract SIMP is Context, IERC20, Ownable {
     }
 
     function _getTValues(uint256 tAmount) private pure returns (uint256, uint256) {
-        uint256 tFee = tAmount.div(100).mul(2);
+        
+        uint256 tFee = tAmount.mul(3).div(100);
         uint256 tTransferAmount = tAmount.sub(tFee);
         return (tTransferAmount, tFee);
     }
